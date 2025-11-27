@@ -52,6 +52,26 @@ func Add(storePath string, content string) (Task, error) {
 	return t, nil
 }
 
+func Delete(storePath string, id int64) (Task, error) {
+	tasks, err := load(storePath)
+	if err != nil {
+		return Task{}, err
+	}
+
+	t, index, found := search(tasks, id)
+	if !found {
+		return Task{}, fmt.Errorf("not found id: %d", id)
+	}
+
+	removedTasks := append(tasks[:index], tasks[index+1:]...)
+
+	if err := save(storePath, removedTasks); err != nil {
+		return Task{}, err
+	}
+
+	return t, nil
+}
+
 func load(storePath string) ([]Task, error) {
 	file, err := os.Open(storePath)
 	if err != nil {
@@ -82,4 +102,13 @@ func save(storePath string, tasks []Task) error {
 	}
 
 	return nil
+}
+
+func search(tasks []Task, id int64) (Task, int, bool) {
+	for i, t := range tasks {
+		if t.Id == id {
+			return t, i, true
+		}
+	}
+	return Task{}, -1, false
 }

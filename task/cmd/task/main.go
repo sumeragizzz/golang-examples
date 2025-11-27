@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strconv"
 	"task/internal/task"
 )
 
@@ -58,6 +59,32 @@ func main() {
 
 	case "update":
 	case "delete":
+		deleteCommand := flag.NewFlagSet("delete", flag.ExitOnError)
+		store := deleteCommand.String("store", "store.json", "store file path")
+		deleteCommand.Usage = func() {
+			fmt.Printf("Usage: task delete [optoins] <id>\n")
+			fmt.Printf("Options:\n")
+			deleteCommand.PrintDefaults()
+		}
+		deleteCommand.Parse(os.Args[2:])
+		if len(deleteCommand.Args()) < 1 {
+			fmt.Println("id is required")
+			deleteCommand.Usage()
+			os.Exit(1)
+		}
+		id, err := strconv.ParseInt(deleteCommand.Args()[0], 10, 64)
+		if err != nil {
+			fmt.Printf("invalid id. id: %s\n", deleteCommand.Args()[0])
+			os.Exit(1)
+		}
+
+		t, err := task.Delete(*store, id)
+		if err != nil {
+			fmt.Printf("%v\n", err)
+			os.Exit(1)
+		}
+		fmt.Printf("%+v\n", t)
+
 	case "done":
 	default:
 		fmt.Printf("invalid command. command: %s\n", os.Args[1])
