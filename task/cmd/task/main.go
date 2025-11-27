@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"task/internal/task"
 )
 
 func main() {
@@ -14,6 +15,14 @@ func main() {
 
 	switch os.Args[1] {
 	case "list":
+		if tasks, err := task.List("store.json"); err != nil {
+			panic(err)
+		} else {
+			for _, t := range tasks {
+				fmt.Printf("id: %d, content: %s, status: %s\n", t.Id, t.Content, t.Status)
+			}
+		}
+
 	case "add":
 		addCommand := flag.NewFlagSet("add", flag.ExitOnError)
 		status := addCommand.String("status", "todo", "status(ex: todo, doing, done)")
