@@ -114,7 +114,60 @@ func main() {
 		}
 		fmt.Printf("%+v\n", t)
 
+	case "doing":
+		doingCommand := flag.NewFlagSet("doing", flag.ExitOnError)
+		store := doingCommand.String("store", "store.json", "store file path")
+		doingCommand.Usage = func() {
+			fmt.Printf("Usage: task doing [optoins] <id>\n")
+			fmt.Printf("Options:\n")
+			doingCommand.PrintDefaults()
+		}
+		doingCommand.Parse(os.Args[2:])
+		if len(doingCommand.Args()) < 1 {
+			fmt.Println("id is required")
+			doingCommand.Usage()
+			os.Exit(1)
+		}
+		id, err := strconv.ParseInt(doingCommand.Args()[0], 10, 64)
+		if err != nil {
+			fmt.Printf("invalid id. id: %s\n", doingCommand.Args()[0])
+			os.Exit(1)
+		}
+
+		t, err := task.Doing(*store, id)
+		if err != nil {
+			fmt.Printf("%v\n", err)
+			os.Exit(1)
+		}
+		fmt.Printf("%+v\n", t)
+
 	case "done":
+		doneCommand := flag.NewFlagSet("done", flag.ExitOnError)
+		store := doneCommand.String("store", "store.json", "store file path")
+		doneCommand.Usage = func() {
+			fmt.Printf("Usage: task done [optoins] <id>\n")
+			fmt.Printf("Options:\n")
+			doneCommand.PrintDefaults()
+		}
+		doneCommand.Parse(os.Args[2:])
+		if len(doneCommand.Args()) < 1 {
+			fmt.Println("id is required")
+			doneCommand.Usage()
+			os.Exit(1)
+		}
+		id, err := strconv.ParseInt(doneCommand.Args()[0], 10, 64)
+		if err != nil {
+			fmt.Printf("invalid id. id: %s\n", doneCommand.Args()[0])
+			os.Exit(1)
+		}
+
+		t, err := task.Done(*store, id)
+		if err != nil {
+			fmt.Printf("%v\n", err)
+			os.Exit(1)
+		}
+		fmt.Printf("%+v\n", t)
+
 	default:
 		fmt.Printf("invalid command. command: %s\n", os.Args[1])
 		os.Exit(1)

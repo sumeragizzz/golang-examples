@@ -63,24 +63,7 @@ func Update(storePath string, id int64, content string) (Task, error) {
 		return Task{}, errors.New("invalid parameter. content: blank")
 	}
 
-	tasks, err := load(storePath)
-	if err != nil {
-		return Task{}, err
-	}
-
-	t, index, found := search(tasks, id)
-	if !found {
-		return Task{}, fmt.Errorf("not found id: %d", id)
-	}
-
-	t.Content = content
-	tasks[index] = t
-
-	if err := save(storePath, tasks); err != nil {
-		return Task{}, err
-	}
-
-	return t, nil
+	return update(storePath, id, content, "")
 }
 
 func Delete(storePath string, id int64) (Task, error) {
@@ -108,6 +91,28 @@ func Delete(storePath string, id int64) (Task, error) {
 	}
 
 	return t, nil
+}
+
+func Doing(storePath string, id int64) (Task, error) {
+	if storePath == "" {
+		return Task{}, errors.New("invalid parameter. store: blank")
+	}
+	if id == 0 {
+		return Task{}, errors.New("invalid parameter. id: zero")
+	}
+
+	return update(storePath, id, "", "doing")
+}
+
+func Done(storePath string, id int64) (Task, error) {
+	if storePath == "" {
+		return Task{}, errors.New("invalid parameter. store: blank")
+	}
+	if id == 0 {
+		return Task{}, errors.New("invalid parameter. id: zero")
+	}
+
+	return update(storePath, id, "", "done")
 }
 
 func load(storePath string) ([]Task, error) {
@@ -149,4 +154,30 @@ func search(tasks []Task, id int64) (Task, int, bool) {
 		}
 	}
 	return Task{}, -1, false
+}
+
+func update(storePath string, id int64, content string, status string) (Task, error) {
+	tasks, err := load(storePath)
+	if err != nil {
+		return Task{}, err
+	}
+
+	t, index, found := search(tasks, id)
+	if !found {
+		return Task{}, fmt.Errorf("not found id: %d", id)
+	}
+
+	if content != "" {
+		t.Content = content
+	}
+	if status != "" {
+		t.Status = status
+	}
+	tasks[index] = t
+
+	if err := save(storePath, tasks); err != nil {
+		return Task{}, err
+	}
+
+	return t, nil
 }
