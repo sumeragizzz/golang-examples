@@ -52,7 +52,45 @@ func Add(storePath string, content string) (Task, error) {
 	return t, nil
 }
 
+func Update(storePath string, id int64, content string) (Task, error) {
+	if storePath == "" {
+		return Task{}, errors.New("invalid parameter. store: blank")
+	}
+	if id == 0 {
+		return Task{}, errors.New("invalid parameter. id: zero")
+	}
+	if content == "" {
+		return Task{}, errors.New("invalid parameter. content: blank")
+	}
+
+	tasks, err := load(storePath)
+	if err != nil {
+		return Task{}, err
+	}
+
+	t, index, found := search(tasks, id)
+	if !found {
+		return Task{}, fmt.Errorf("not found id: %d", id)
+	}
+
+	t.Content = content
+	tasks[index] = t
+
+	if err := save(storePath, tasks); err != nil {
+		return Task{}, err
+	}
+
+	return t, nil
+}
+
 func Delete(storePath string, id int64) (Task, error) {
+	if storePath == "" {
+		return Task{}, errors.New("invalid parameter. store: blank")
+	}
+	if id == 0 {
+		return Task{}, errors.New("invalid parameter. id: zero")
+	}
+
 	tasks, err := load(storePath)
 	if err != nil {
 		return Task{}, err
