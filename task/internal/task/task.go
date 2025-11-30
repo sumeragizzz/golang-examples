@@ -38,11 +38,9 @@ func Add(store string, content string) (Task, error) {
 		return Task{}, errors.New("invalid parameter. content: blank")
 	}
 
+	tasks, _ := load(store)
+
 	t := Task{}.Create(content)
-
-	tasks, err := load(store)
-	_ = err
-
 	tasks = append(tasks, t)
 
 	if err := save(store, tasks); err != nil {
