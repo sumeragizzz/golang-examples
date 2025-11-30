@@ -14,9 +14,13 @@ type Task struct {
 	Status  string `json:"status"`
 }
 
+var generateId = func() int64 {
+	return time.Now().UnixNano()
+}
+
 func (t Task) Create(content string) Task {
 	return Task{
-		Id:      time.Now().UnixNano(),
+		Id:      generateId(),
 		Content: content,
 		Status:  "todo",
 	}
